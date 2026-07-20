@@ -1,0 +1,32 @@
+[package]
+name = "helios-exex-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "helios-exex"
+path = "src/main.rs"
+
+[dependencies]
+alloy.workspace = true
+eyre = "0.6"
+futures = "0.3"
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+tracing = "0.1"
+
+clap = { version = "4.5.4", features = ["derive", "env"] }
+tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
+dirs = "5.0.1"
+ctrlc = "3.2.3"
+url = "2.5.0"
+
+# TUI dependencies
+ratatui = "0.26.1"
+crossterm = "0.27.0"
+chrono = "0.4"
+
+helios-common = { git = "https://github.com/parmenides-xyz/helios.git", rev = "098ad96e3b91191d81946f075210168a6f924d28" }
+helios-core = { git = "https://github.com/parmenides-xyz/helios.git", rev = "098ad96e3b91191d81946f075210168a6f924d28" }
+helios-exex-data-network.workspace = true
+helios-exex-light-client.workspace = true

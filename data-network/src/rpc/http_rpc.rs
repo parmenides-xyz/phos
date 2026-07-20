@@ -9,18 +9,17 @@ use reqwest::header;
 
 use helios_exex_light_client::{
     components::io::{AtHeight, Io, IoError},
-    verifier::types::{LightBlock, PeerId, SignedHeader, ValidatorAddress, ValidatorSet},
+    verifier::types::{Height, LightBlock, PeerId, SignedHeader, ValidatorAddress, ValidatorSet},
 };
 
 #[derive(Clone, Debug)]
-pub struct HttpRpc {
+struct HttpTransport {
     inner: reqwest::Client,
     url: reqwest::Url,
-    peer_id: PeerId,
 }
 
-impl HttpRpc {
-    pub fn new(url: reqwest::Url, peer_id: PeerId) -> Self {
+impl HttpTransport {
+    fn new(url: reqwest::Url) -> Self {
         #[cfg(not(target_arch = "wasm32"))]
         let inner = reqwest::Client::builder()
             .timeout(Duration::from_secs(30))
@@ -32,11 +31,7 @@ impl HttpRpc {
         #[cfg(target_arch = "wasm32")]
         let inner = reqwest::Client::new();
 
-        Self {
-            inner,
-            url,
-            peer_id,
-        }
+        Self { inner, url }
     }
 
     fn build_request<R>(&self, request: R) -> Result<reqwest::Request, rpc::Error>
@@ -52,45 +47,11 @@ impl HttpRpc {
             .build()
             .map_err(rpc::Error::http)
     }
-
-    pub async fn fetch_signed_header(&self, height: AtHeight) -> Result<SignedHeader, IoError> {
-        let response = match height {
-            AtHeight::Highest => self.latest_commit().await,
-            AtHeight::At(height) => self.commit(height).await,
-        }
-        .map_err(IoError::from_rpc)?;
-
-        Ok(response.signed_header)
-    }
-
-    pub async fn fetch_validator_set(
-        &self,
-        height: AtHeight,
-        proposer_address: Option<ValidatorAddress>,
-    ) -> Result<ValidatorSet, IoError> {
-        let height = match height {
-            AtHeight::Highest => return Err(IoError::invalid_height()),
-            AtHeight::At(height) => height,
-        };
-
-        let response = self
-            .validators(height, rpc::Paging::All)
-            .await
-            .map_err(IoError::rpc)?;
-
-        match proposer_address {
-            Some(proposer_address) => {
-                ValidatorSet::with_proposer(response.validators, proposer_address)
-                    .map_err(IoError::invalid_validator_set)
-            }
-            None => Ok(ValidatorSet::without_proposer(response.validators)),
-        }
-    }
 }
 
 #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
-impl Client for HttpRpc {
+impl Client for HttpTransport {
     async fn perform<R>(&self, request: R) -> Result<R::Output, rpc::Error>
     where
         R: SimpleRequest,
@@ -109,6 +70,68 @@ impl Client for HttpRpc {
         }
 
         R::Response::from_string(&response_body).map(Into::into)
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct HttpRpc {
+    transport: HttpTransport,
+    peer_id: PeerId,
+}
+
+impl HttpRpc {
+    pub async fn connect(url: reqwest::Url) -> Result<Self, rpc::Error> {
+        let transport = HttpTransport::new(url);
+        let peer_id = transport.status().await?.node_info.id;
+
+        Ok(Self { transport, peer_id })
+    }
+
+    pub fn peer_id(&self) -> PeerId {
+        self.peer_id
+    }
+
+    pub async fn fetch_signed_header(&self, height: AtHeight) -> Result<SignedHeader, IoError> {
+        let response = match height {
+            AtHeight::Highest => self.transport.latest_commit().await,
+            AtHeight::At(height) => self.transport.commit(height).await,
+        }
+        .map_err(IoError::from_rpc)?;
+
+        Ok(response.signed_header)
+    }
+
+    pub async fn fetch_validator_set(
+        &self,
+        height: AtHeight,
+        proposer_address: Option<ValidatorAddress>,
+    ) -> Result<ValidatorSet, IoError> {
+        let height = match height {
+            AtHeight::Highest => return Err(IoError::invalid_height()),
+            AtHeight::At(height) => height,
+        };
+
+        let response = self
+            .transport
+            .validators(height, rpc::Paging::All)
+            .await
+            .map_err(IoError::rpc)?;
+
+        match proposer_address {
+            Some(proposer_address) => {
+                ValidatorSet::with_proposer(response.validators, proposer_address)
+                    .map_err(IoError::invalid_validator_set)
+            }
+            None => Ok(ValidatorSet::without_proposer(response.validators)),
+        }
+    }
+
+    pub async fn fetch_block(&self, height: Height) -> Result<cometbft::block::Block, IoError> {
+        self.transport
+            .block(height)
+            .await
+            .map(|response| response.block)
+            .map_err(IoError::from_rpc)
     }
 }
 
