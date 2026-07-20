@@ -1,0 +1,132 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          rustflags: ""
+      - name: Check workspace
+        run: cargo check --workspace --locked
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          rustflags: ""
+      - name: Test workspace
+        run: cargo test --workspace --locked
+
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: clippy
+          rustflags: ""
+      - name: Run Clippy
+        run: cargo clippy --workspace --all-targets
+
+  fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: rustfmt
+          rustflags: ""
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+  wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: wasm32-unknown-unknown
+          rustflags: ""
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack@0.15.0
+      - name: Check WASM crate
+        run: cargo check --locked --target wasm32-unknown-unknown --package helios-exex-node-wasm
+      - name: Install package dependencies
+        run: npm ci
+        working-directory: node-wasm
+      - name: Build package
+        run: npm run build
+        working-directory: node-wasm
+      - name: Install example dependencies
+        run: npm ci
+        working-directory: node-wasm/example
+      - name: Build example
+        run: npm run build
+        working-directory: node-wasm/example
+
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: aarch64-apple-ios,aarch64-apple-ios-sim
+          rustflags: ""
+      - name: Build Swift bindings and XCFramework
+        run: ./node-uniffi/build-ios.sh
+      - name: Copy bindings into example
+        run: ./examples/ios/copy_bindings.sh
+      - name: Build iOS example
+        run: >-
+          xcodebuild
+          -project examples/ios/DataNetworkDemo.xcodeproj
+          -scheme DataNetworkDemo
+          -configuration Debug
+          -sdk iphonesimulator
+          -destination "generic/platform=iOS Simulator"
+          CODE_SIGNING_ALLOWED=NO
+          ONLY_ACTIVE_ARCH=YES
+          ARCHS=arm64
+          build
+
+  required:
+    name: Required checks
+    runs-on: ubuntu-latest
+    if: ${{ !cancelled() }}
+    needs:
+      - check
+      - test
+      - clippy
+      - fmt
+      - wasm
+      - ios
+    steps:
+      - name: On failure
+        if: always() && contains(needs.*.result, 'failure')
+        run: exit 1
