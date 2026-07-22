@@ -4,6 +4,7 @@
     "noImplicitAny": true,
     "module": "ESNext",
     "target": "es6",
+    "lib": ["ES2015", "DOM", "ESNext.Disposable"],
     "allowJs": true,
     "moduleResolution": "bundler",
     "sourceMap": true,

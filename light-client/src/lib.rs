@@ -8,6 +8,7 @@
     rust_2018_idioms,
     nonstandard_style
 )]
+#![allow(clippy::result_large_err)]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/cometbft/cometbft-rs/master/img/logo-cometbft-rs_3961x4001.png"
 )]
