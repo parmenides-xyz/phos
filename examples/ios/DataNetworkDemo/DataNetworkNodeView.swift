@@ -6,27 +6,29 @@ private let trustHeight: UInt64 = 20_044_541
 private let trustHash = "9929C08444D99A82908E007CB0A45AF073A424630E46A1289E6C7C2CB98C8449"
 
 private enum Palette {
-    static let base = Color(red: 0.098, green: 0.098, blue: 0.098)
-    static let card = Color(red: 0.133, green: 0.133, blue: 0.133)
-    static let border = Color(red: 0.137, green: 0.137, blue: 0.137)
-    static let distinct = Color(red: 0.192, green: 0.192, blue: 0.192)
-    static let primary = Color.white
-    static let secondary = Color(red: 0.706, green: 0.706, blue: 0.706)
-    static let tertiary = Color(red: 0.431, green: 0.431, blue: 0.431)
-    static let accent = Color(red: 0.376, green: 0.647, blue: 0.980)
-    static let positive = Color(red: 0.188, green: 0.643, blue: 0.424)
-    static let negative = Color(red: 0.898, green: 0.282, blue: 0.302)
+    static let base = Color(red: 0.102, green: 0.102, blue: 0.102)
+    static let card = Color(red: 0.188, green: 0.188, blue: 0.188)
+    static let border = Color(red: 0.188, green: 0.188, blue: 0.188)
+    static let distinct = Color(red: 0.310, green: 0.310, blue: 0.310)
+    static let primary = Color(red: 0.973, green: 0.973, blue: 0.965)
+    static let secondary = Color(red: 0.725, green: 0.725, blue: 0.702)
+    static let tertiary = Color(red: 0.502, green: 0.502, blue: 0.502)
+    static let accent = Color(red: 0.965, green: 1.000, blue: 0.000)
+    static let positive = Color(red: 0.357, green: 0.667, blue: 0.498)
+    static let negative = Color(red: 0.910, green: 0.384, blue: 0.341)
 }
 
 private enum ClientPhase {
     case syncing
     case live
+    case reconnecting
     case error
 
     var label: String {
         switch self {
         case .syncing: "Syncing"
         case .live: "Live"
+        case .reconnecting: "Reconnecting"
         case .error: "Error"
         }
     }
@@ -35,6 +37,7 @@ private enum ClientPhase {
         switch self {
         case .syncing: Palette.tertiary
         case .live: Palette.positive
+        case .reconnecting: Palette.accent
         case .error: Palette.negative
         }
     }
@@ -109,7 +112,7 @@ private final class DataNetworkViewModel: ObservableObject {
     private var lastSeen: UInt64?
 
     var phase: ClientPhase {
-        if error != nil { return .error }
+        if error != nil { return isSynced ? .reconnecting : .error }
         return isSynced ? .live : .syncing
     }
 
@@ -250,8 +253,14 @@ private struct HeaderView: View {
 
     var body: some View {
         HStack(spacing: 8) {
+            Image("DataSymbol")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+                .accessibilityHidden(true)
+
             Text("DATA")
-                .font(.system(size: 21, weight: .semibold))
+                .font(.system(size: 21, weight: .medium))
                 .foregroundStyle(Palette.primary)
 
             StatusBadge(label: "Mainnet", phase: phase)
@@ -282,10 +291,10 @@ private struct StatusBadge: View {
         .frame(height: 28)
         .background(Palette.card)
         .overlay(
-            RoundedRectangle(cornerRadius: 8)
+            RoundedRectangle(cornerRadius: 4)
                 .stroke(Palette.distinct, lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .clipShape(RoundedRectangle(cornerRadius: 4))
     }
 }
 
@@ -305,8 +314,9 @@ private struct BlocksCard: View {
                             .foregroundStyle(Palette.tertiary)
                     }
                 }
-                .font(.system(size: 13, weight: .medium))
+                .font(.system(size: 12, design: .monospaced))
                 .foregroundStyle(Palette.primary)
+                .textCase(.uppercase)
                 .padding(.horizontal, 18)
                 .frame(height: 36)
                 .overlay(alignment: .bottom) {
@@ -337,13 +347,9 @@ private struct BlocksCard: View {
                     BlockHeaderRow()
                     DashedDivider()
 
-                    if let error {
-                        Text(error.localizedDescription)
-                            .font(.system(size: 13, design: .monospaced))
-                            .foregroundStyle(Palette.negative)
-                            .multilineTextAlignment(.center)
+                    if error != nil {
+                        Color.clear
                             .frame(width: 680, height: 245)
-                            .padding(.horizontal, 16)
                     } else if blocks.isEmpty {
                         ForEach(0..<5, id: \.self) { index in
                             SkeletonRow()
@@ -359,16 +365,33 @@ private struct BlocksCard: View {
                 .frame(minWidth: 680)
                 .background(Palette.card)
             }
+            .overlay(alignment: .bottom) {
+                if error != nil {
+                    Text(
+                        phase == .reconnecting
+                            ? "Connection interrupted. Retrying..."
+                            : "Unable to connect to DATA Network."
+                    )
+                        .font(.system(size: 13, design: .monospaced))
+                        .foregroundStyle(Palette.negative)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(5)
+                        .truncationMode(.middle)
+                        .padding(.horizontal, 20)
+                        .frame(maxWidth: .infinity, minHeight: 245)
+                        .background(Palette.card)
+                }
+            }
             .overlay(alignment: .top) {
                 Rectangle().fill(Palette.border).frame(height: 1)
             }
         }
         .background(Palette.base)
         .overlay(
-            RoundedRectangle(cornerRadius: 10)
+            RoundedRectangle(cornerRadius: 4)
                 .stroke(Palette.border, lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .clipShape(RoundedRectangle(cornerRadius: 4))
     }
 }
 
@@ -518,8 +541,9 @@ private struct InfoCard<Content: View>: View {
     var body: some View {
         VStack(spacing: 0) {
             Text(title)
-                .font(.system(size: 13))
+                .font(.system(size: 12, design: .monospaced))
                 .foregroundStyle(Palette.tertiary)
+                .textCase(.uppercase)
                 .frame(maxWidth: .infinity, minHeight: 36, alignment: .leading)
                 .padding(.horizontal, 18)
 
@@ -533,10 +557,10 @@ private struct InfoCard<Content: View>: View {
         }
         .background(Palette.base)
         .overlay(
-            RoundedRectangle(cornerRadius: 10)
+            RoundedRectangle(cornerRadius: 4)
                 .stroke(Palette.border, lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .clipShape(RoundedRectangle(cornerRadius: 4))
     }
 }
 
