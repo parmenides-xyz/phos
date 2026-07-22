@@ -15,7 +15,7 @@ path = "./src/bin/uniffi-bindgen.rs"
 [dependencies]
 alloy.workspace = true
 helios-common = { git = "https://github.com/parmenides-xyz/helios.git", rev = "098ad96e3b91191d81946f075210168a6f924d28" }
-helios-exex-data-network.workspace = true
+helios-exex-data-network = { workspace = true, default-features = false, features = ["tls-webpki-roots"] }
 helios-exex-light-client.workspace = true
 serde.workspace = true
 serde_json.workspace = true
@@ -24,3 +24,10 @@ tokio = { workspace = true, features = ["macros", "sync", "rt-multi-thread"] }
 tokio-stream = { workspace = true, features = ["sync"] }
 uniffi = { workspace = true, features = ["tokio", "cli"] }
 url.workspace = true
+
+[features]
+# webpki is needed for TLS on iOS
+# https://github.com/hyperium/tonic/issues/2369
+default = ["tls-webpki-roots"]
+tls-native-roots = ["helios-exex-data-network/tls-native-roots"]
+tls-webpki-roots = ["helios-exex-data-network/tls-webpki-roots"]

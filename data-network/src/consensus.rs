@@ -1,11 +1,4 @@
-use std::{
-    marker::PhantomData,
-    sync::{
-        atomic::{AtomicU64, Ordering},
-        Arc,
-    },
-    time::Duration,
-};
+use std::{marker::PhantomData, sync::Arc, time::Duration};
 
 use alloy::{
     consensus::{
@@ -26,6 +19,7 @@ use alloy::{
 use cometbft::{
     block::Block as CometBlock, crypto::default::Sha256, merkle::simple_hash_from_byte_vectors,
 };
+use cometbft_rpc::client::Client;
 use eyre::{bail, eyre, Context, Result};
 use prost::Message;
 use tokio::sync::{
@@ -35,18 +29,27 @@ use tokio::sync::{
 use tracing::{error, info, warn};
 
 use helios_core::{consensus::Consensus, time::interval};
+use helios_exex_data_network_proto::{
+    cosmos::tx::v1beta1::{TxBody, TxRaw},
+    story::evmengine::v1::types::{ExecutionPayloadDeneb, MsgExecutionPayload},
+};
 use helios_exex_light_client::{
     builder::LightClientBuilder,
-    components::{clock::SystemClock, scheduler::basic_bisecting_schedule},
+    components::{clock::SystemClock, io::IoError, scheduler::basic_bisecting_schedule},
+    errors::Error as LightClientError,
     instance::Instance,
     store::memory::MemoryStore,
-    verifier::{predicates::ProdPredicates, types::LightBlock, ProdVerifier},
+    verifier::{
+        predicates::ProdPredicates,
+        types::{Height, LightBlock},
+        ProdVerifier,
+    },
 };
 
 use crate::{
     config::{Config, TrustOptions},
     database::Database,
-    rpc::http_rpc::HttpRpc,
+    rpc::http_rpc::{HttpClient, ProdIo},
 };
 
 // DATA blocks retain the legacy protobuf package name on the wire.
@@ -60,25 +63,54 @@ enum ConsensusSyncStatus {
 }
 
 pub struct ConsensusClient<DB: Database> {
-    block_recv: Option<Receiver<Block<Transaction>>>,
-    finalized_block_recv: Option<watch::Receiver<Option<Block<Transaction>>>>,
+    pub block_recv: Option<Receiver<Block<Transaction>>>,
+    pub finalized_block_recv: Option<watch::Receiver<Option<Block<Transaction>>>>,
     sync_status_recv: Mutex<watch::Receiver<ConsensusSyncStatus>>,
     shutdown_send: watch::Sender<bool>,
-    expected_highest_block: Arc<AtomicU64>,
-    chain_id: u64,
+    config: Arc<Config>,
     phantom: PhantomData<DB>,
+}
+
+#[derive(Debug)]
+pub(crate) struct Provider {
+    instance: Instance,
+    rpc: ProdIo,
+}
+
+impl Provider {
+    pub fn new(instance: Instance, rpc: ProdIo) -> Self {
+        Self { instance, rpc }
+    }
+
+    pub async fn verify_to_highest(&mut self) -> Result<LightBlock, LightClientError> {
+        self.instance
+            .light_client
+            .verify_to_highest(&mut self.instance.state)
+            .await
+    }
+
+    pub async fn fetch_block(&self, height: Height) -> Result<CometBlock, IoError> {
+        self.rpc.fetch_block(height).await
+    }
+}
+
+struct Inner<DB: Database> {
+    provider: Provider,
+    last_comet_height: Option<Height>,
+    block_send: Sender<Block<Transaction>>,
+    finalized_block_send: watch::Sender<Option<Block<Transaction>>>,
+    db: Arc<DB>,
 }
 
 impl<DB: Database> ConsensusClient<DB> {
     pub fn new(config: Arc<Config>) -> Result<Self> {
-        let db = Arc::new(DB::new(&config)?);
-        let trust_options = db.load_trust_options()?;
         let (block_send, block_recv) = channel(256);
         let (finalized_block_send, finalized_block_recv) = watch::channel(None);
         let (sync_status_send, sync_status_recv) = watch::channel(ConsensusSyncStatus::Syncing);
         let (shutdown_send, mut shutdown_recv) = watch::channel(false);
-        let expected_highest_block = Arc::new(AtomicU64::new(0));
-        let expected_highest_block_task = expected_highest_block.clone();
+        let config_clone = config.clone();
+        let db = Arc::new(DB::new(&config)?);
+        let trust_options = db.load_trust_options()?;
         let consensus_rpc = config.consensus_rpc.clone();
         let verifier_options = config.verifier_options;
 
@@ -95,7 +127,6 @@ impl<DB: Database> ConsensusClient<DB> {
                 verifier_options,
                 block_send,
                 finalized_block_send,
-                expected_highest_block_task,
                 db,
             )
             .await
@@ -138,8 +169,7 @@ impl<DB: Database> ConsensusClient<DB> {
             finalized_block_recv: Some(finalized_block_recv),
             sync_status_recv: Mutex::new(sync_status_recv),
             shutdown_send,
-            expected_highest_block,
-            chain_id: config.chain.chain_id,
+            config: config_clone,
             phantom: PhantomData,
         })
     }
@@ -160,11 +190,11 @@ impl<DB: Database> Consensus<Block<Transaction>> for ConsensusClient<DB> {
     }
 
     fn expected_highest_block(&self) -> u64 {
-        self.expected_highest_block.load(Ordering::Relaxed)
+        u64::MAX
     }
 
     fn chain_id(&self) -> u64 {
-        self.chain_id
+        self.config.chain.chain_id
     }
 
     fn shutdown(&self) -> Result<()> {
@@ -186,16 +216,6 @@ impl<DB: Database> Consensus<Block<Transaction>> for ConsensusClient<DB> {
     }
 }
 
-struct Inner<DB: Database> {
-    rpc: HttpRpc,
-    light_client: Instance,
-    last_comet_height: Option<cometbft::block::Height>,
-    block_send: Sender<Block<Transaction>>,
-    finalized_block_send: watch::Sender<Option<Block<Transaction>>>,
-    expected_highest_block: Arc<AtomicU64>,
-    db: Arc<DB>,
-}
-
 impl<DB: Database> Inner<DB> {
     async fn new(
         consensus_rpc: reqwest::Url,
@@ -203,12 +223,12 @@ impl<DB: Database> Inner<DB> {
         verifier_options: helios_exex_light_client::verifier::options::Options,
         block_send: Sender<Block<Transaction>>,
         finalized_block_send: watch::Sender<Option<Block<Transaction>>>,
-        expected_highest_block: Arc<AtomicU64>,
         db: Arc<DB>,
     ) -> Result<Self> {
-        let rpc = HttpRpc::connect(consensus_rpc).await?;
-        let peer_id = rpc.peer_id();
-        let light_client = LightClientBuilder::custom(
+        let rpc_client = HttpClient::new(consensus_rpc);
+        let peer_id = rpc_client.status().await?.node_info.id;
+        let rpc = ProdIo::new(peer_id, rpc_client);
+        let instance = LightClientBuilder::custom(
             peer_id,
             verifier_options,
             Box::new(MemoryStore::new()),
@@ -222,29 +242,25 @@ impl<DB: Database> Inner<DB> {
         .await?
         .build();
 
+        let provider = Provider::new(instance, rpc);
+
         Ok(Self {
-            rpc,
-            light_client,
+            provider,
             last_comet_height: None,
             block_send,
             finalized_block_send,
-            expected_highest_block,
             db,
         })
     }
 
     async fn advance(&mut self) -> Result<()> {
-        let light_block = self
-            .light_client
-            .light_client
-            .verify_to_highest(&mut self.light_client.state)
-            .await?;
+        let light_block = self.provider.verify_to_highest().await?;
 
         if self.last_comet_height == Some(light_block.height()) {
             return Ok(());
         }
 
-        let block = fetch_execution_block(&self.rpc, &light_block).await?;
+        let block = fetch_execution_block(&self.provider, &light_block).await?;
         self.last_comet_height = Some(light_block.height());
         self.db.save_trust_options(&TrustOptions {
             height: light_block.height(),
@@ -255,8 +271,6 @@ impl<DB: Database> Inner<DB> {
             return Ok(());
         };
 
-        self.expected_highest_block
-            .store(block.header.number, Ordering::Relaxed);
         self.block_send
             .send(block.clone())
             .await
@@ -270,11 +284,11 @@ impl<DB: Database> Inner<DB> {
 }
 
 pub(crate) async fn fetch_execution_block(
-    rpc: &HttpRpc,
+    provider: &Provider,
     light_block: &LightBlock,
 ) -> Result<Option<Block<Transaction>>> {
     let trusted_header = &light_block.signed_header.header;
-    let block = rpc.fetch_block(trusted_header.height).await?;
+    let block = provider.fetch_block(trusted_header.height).await?;
 
     verify_block_data(&block, light_block)?;
 
@@ -328,18 +342,13 @@ fn verify_block_data(block: &CometBlock, light_block: &LightBlock) -> Result<()>
 }
 
 fn block_data_hash(data: &[impl AsRef<[u8]>]) -> [u8; 32] {
-    let transaction_hashes = data
-        .iter()
-        .map(|tx| <Sha256 as cometbft::crypto::Sha256>::digest(tx))
-        .collect::<Vec<_>>();
-
-    simple_hash_from_byte_vectors::<Sha256>(&transaction_hashes)
+    simple_hash_from_byte_vectors::<Sha256>(data)
 }
 
 fn decode_execution_payload(tx: &[u8]) -> Result<ExecutionPayloadV3> {
-    let tx = ProtoTxRaw::decode(tx).wrap_err("failed to decode Cosmos SDK TxRaw")?;
-    let body = ProtoTxBody::decode(tx.body_bytes.as_slice())
-        .wrap_err("failed to decode Cosmos SDK TxBody")?;
+    let tx = TxRaw::decode(tx).wrap_err("failed to decode Cosmos SDK TxRaw")?;
+    let body =
+        TxBody::decode(tx.body_bytes.as_slice()).wrap_err("failed to decode Cosmos SDK TxBody")?;
 
     if body.messages.len() != 1 {
         bail!(
@@ -353,7 +362,7 @@ fn decode_execution_payload(tx: &[u8]) -> Result<ExecutionPayloadV3> {
         bail!("unexpected DATA message type: {}", message.type_url);
     }
 
-    let payload = ProtoMsgExecutionPayload::decode(message.value.as_slice())
+    let payload = MsgExecutionPayload::decode(message.value.as_slice())
         .wrap_err("failed to decode MsgExecutionPayload")?;
 
     match (
@@ -362,7 +371,7 @@ fn decode_execution_payload(tx: &[u8]) -> Result<ExecutionPayloadV3> {
     ) {
         (false, None) => serde_json::from_slice(&payload.execution_payload)
             .wrap_err("failed to decode legacy JSON execution payload"),
-        (true, Some(payload)) => payload.try_into(),
+        (true, Some(payload)) => payload_from_proto(payload),
         (false, Some(_)) => bail!("execution payload contains both legacy and protobuf forms"),
         (true, None) => bail!("execution payload is missing"),
     }
@@ -415,135 +424,50 @@ fn payload_to_block(
     )
 }
 
-impl TryFrom<ProtoExecutionPayloadDeneb> for ExecutionPayloadV3 {
-    type Error = eyre::Error;
-
-    fn try_from(payload: ProtoExecutionPayloadDeneb) -> Result<Self> {
-        let withdrawals = payload
-            .withdrawals
-            .into_iter()
-            .map(|withdrawal| {
-                Ok(Withdrawal {
-                    index: withdrawal.index,
-                    validator_index: withdrawal.validator_index,
-                    address: Address::from(fixed_bytes("withdrawal address", withdrawal.address)?),
-                    amount: withdrawal.amount,
-                })
+fn payload_from_proto(payload: ExecutionPayloadDeneb) -> Result<ExecutionPayloadV3> {
+    let withdrawals = payload
+        .withdrawals
+        .into_iter()
+        .map(|withdrawal| {
+            Ok(Withdrawal {
+                index: withdrawal.index,
+                validator_index: withdrawal.validator_index,
+                address: Address::from(fixed_bytes("withdrawal address", withdrawal.address)?),
+                amount: withdrawal.amount,
             })
-            .collect::<Result<Vec<_>>>()?;
-
-        Ok(Self {
-            payload_inner: ExecutionPayloadV2 {
-                payload_inner: ExecutionPayloadV1 {
-                    parent_hash: B256::from(fixed_bytes("parent hash", payload.parent_hash)?),
-                    fee_recipient: Address::from(fixed_bytes(
-                        "fee recipient",
-                        payload.fee_recipient,
-                    )?),
-                    state_root: B256::from(fixed_bytes("state root", payload.state_root)?),
-                    receipts_root: B256::from(fixed_bytes("receipts root", payload.receipts_root)?),
-                    logs_bloom: Bloom::from(fixed_bytes("logs bloom", payload.logs_bloom)?),
-                    prev_randao: B256::from(fixed_bytes("prev randao", payload.prev_randao)?),
-                    block_number: payload.block_number,
-                    gas_limit: payload.gas_limit,
-                    gas_used: payload.gas_used,
-                    timestamp: payload.timestamp,
-                    extra_data: Bytes::from(payload.extra_data),
-                    base_fee_per_gas: U256::from_be_bytes(fixed_bytes::<32>(
-                        "base fee per gas",
-                        payload.base_fee_per_gas,
-                    )?),
-                    block_hash: B256::from(fixed_bytes("block hash", payload.block_hash)?),
-                    transactions: payload.transactions.into_iter().map(Bytes::from).collect(),
-                },
-                withdrawals,
-            },
-            blob_gas_used: payload.blob_gas_used,
-            excess_blob_gas: payload.excess_blob_gas,
         })
-    }
+        .collect::<Result<Vec<_>>>()?;
+
+    Ok(ExecutionPayloadV3 {
+        payload_inner: ExecutionPayloadV2 {
+            payload_inner: ExecutionPayloadV1 {
+                parent_hash: B256::from(fixed_bytes("parent hash", payload.parent_hash)?),
+                fee_recipient: Address::from(fixed_bytes("fee recipient", payload.fee_recipient)?),
+                state_root: B256::from(fixed_bytes("state root", payload.state_root)?),
+                receipts_root: B256::from(fixed_bytes("receipts root", payload.receipts_root)?),
+                logs_bloom: Bloom::from(fixed_bytes("logs bloom", payload.logs_bloom)?),
+                prev_randao: B256::from(fixed_bytes("prev randao", payload.prev_randao)?),
+                block_number: payload.block_number,
+                gas_limit: payload.gas_limit,
+                gas_used: payload.gas_used,
+                timestamp: payload.timestamp,
+                extra_data: Bytes::from(payload.extra_data),
+                base_fee_per_gas: U256::from_be_bytes(fixed_bytes::<32>(
+                    "base fee per gas",
+                    payload.base_fee_per_gas,
+                )?),
+                block_hash: B256::from(fixed_bytes("block hash", payload.block_hash)?),
+                transactions: payload.transactions.into_iter().map(Bytes::from).collect(),
+            },
+            withdrawals,
+        },
+        blob_gas_used: payload.blob_gas_used,
+        excess_blob_gas: payload.excess_blob_gas,
+    })
 }
 
 fn fixed_bytes<const N: usize>(field: &str, bytes: Vec<u8>) -> Result<[u8; N]> {
     bytes
         .try_into()
         .map_err(|bytes: Vec<u8>| eyre!("{field} must be {N} bytes, found {}", bytes.len()))
-}
-
-#[derive(Clone, PartialEq, Message)]
-struct ProtoTxRaw {
-    #[prost(bytes = "vec", tag = "1")]
-    body_bytes: Vec<u8>,
-}
-
-#[derive(Clone, PartialEq, Message)]
-struct ProtoTxBody {
-    #[prost(message, repeated, tag = "1")]
-    messages: Vec<ProtoAny>,
-}
-
-#[derive(Clone, PartialEq, Message)]
-struct ProtoAny {
-    #[prost(string, tag = "1")]
-    type_url: String,
-    #[prost(bytes = "vec", tag = "2")]
-    value: Vec<u8>,
-}
-
-#[derive(Clone, PartialEq, Message)]
-struct ProtoMsgExecutionPayload {
-    #[prost(bytes = "vec", tag = "2")]
-    execution_payload: Vec<u8>,
-    #[prost(message, optional, tag = "4")]
-    execution_payload_deneb: Option<ProtoExecutionPayloadDeneb>,
-}
-
-#[derive(Clone, PartialEq, Message)]
-struct ProtoExecutionPayloadDeneb {
-    #[prost(bytes = "vec", tag = "1")]
-    parent_hash: Vec<u8>,
-    #[prost(bytes = "vec", tag = "2")]
-    fee_recipient: Vec<u8>,
-    #[prost(bytes = "vec", tag = "3")]
-    state_root: Vec<u8>,
-    #[prost(bytes = "vec", tag = "4")]
-    receipts_root: Vec<u8>,
-    #[prost(bytes = "vec", tag = "5")]
-    logs_bloom: Vec<u8>,
-    #[prost(bytes = "vec", tag = "6")]
-    prev_randao: Vec<u8>,
-    #[prost(uint64, tag = "7")]
-    block_number: u64,
-    #[prost(uint64, tag = "8")]
-    gas_limit: u64,
-    #[prost(uint64, tag = "9")]
-    gas_used: u64,
-    #[prost(uint64, tag = "10")]
-    timestamp: u64,
-    #[prost(bytes = "vec", tag = "11")]
-    extra_data: Vec<u8>,
-    #[prost(bytes = "vec", tag = "12")]
-    base_fee_per_gas: Vec<u8>,
-    #[prost(bytes = "vec", tag = "13")]
-    block_hash: Vec<u8>,
-    #[prost(bytes = "vec", repeated, tag = "14")]
-    transactions: Vec<Vec<u8>>,
-    #[prost(message, repeated, tag = "15")]
-    withdrawals: Vec<ProtoWithdrawal>,
-    #[prost(uint64, tag = "16")]
-    blob_gas_used: u64,
-    #[prost(uint64, tag = "17")]
-    excess_blob_gas: u64,
-}
-
-#[derive(Clone, PartialEq, Message)]
-struct ProtoWithdrawal {
-    #[prost(uint64, tag = "1")]
-    index: u64,
-    #[prost(uint64, tag = "2")]
-    validator_index: u64,
-    #[prost(bytes = "vec", tag = "3")]
-    address: Vec<u8>,
-    #[prost(uint64, tag = "4")]
-    amount: u64,
 }

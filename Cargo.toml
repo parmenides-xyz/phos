@@ -5,6 +5,7 @@ members = [
     "light-client",
     "light-client-verifier",
     "data-network",
+    "data-network-proto",
     "data-network-precompiles",
     "node-wasm",
     "node-uniffi",
@@ -35,8 +36,13 @@ uniffi = "0.29.2"
 url = "2.5"
 helios-exex-light-client = { path = "light-client" }
 helios-exex-light-client-verifier = { path = "light-client-verifier" }
-helios-exex-data-network = { path = "data-network" }
+helios-exex-data-network = { path = "data-network", default-features = false }
+helios-exex-data-network-proto = { path = "data-network-proto" }
 helios-exex-data-network-precompiles = { path = "data-network-precompiles" }
+prost = "0.13.3"
+prost-build = "0.13.3"
+prost-types = "0.13.3"
+protox = "0.8"
 revm = { version = "=34.0.0", default-features = false, features = [
     "std",
     "serde",

@@ -4,6 +4,11 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+[features]
+default = ["tls-native-roots"]
+tls-native-roots = ["reqwest/rustls-tls-native-roots"]
+tls-webpki-roots = ["reqwest/rustls-tls-webpki-roots"]
+
 [dependencies]
 alloy.workspace = true
 async-trait = "0.1"
@@ -13,11 +18,12 @@ eyre = "0.6"
 figment = { version = "0.10.7", features = ["toml", "env"] }
 helios-common = { git = "https://github.com/parmenides-xyz/helios.git", rev = "098ad96e3b91191d81946f075210168a6f924d28" }
 helios-core = { git = "https://github.com/parmenides-xyz/helios.git", rev = "098ad96e3b91191d81946f075210168a6f924d28" }
+helios-exex-data-network-proto.workspace = true
 helios-exex-data-network-precompiles.workspace = true
 helios-exex-light-client = { workspace = true, features = ["secp256k1"] }
 helios-revm-utils = { git = "https://github.com/parmenides-xyz/helios.git", rev = "098ad96e3b91191d81946f075210168a6f924d28" }
-prost = "0.13"
-reqwest = { version = "0.11.20", default-features = false, features = ["rustls-tls-native-roots"] }
+prost.workspace = true
+reqwest = { version = "0.11.20", default-features = false }
 revm.workspace = true
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

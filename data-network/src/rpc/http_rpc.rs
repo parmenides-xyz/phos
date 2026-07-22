@@ -13,13 +13,13 @@ use helios_exex_light_client::{
 };
 
 #[derive(Clone, Debug)]
-struct HttpTransport {
+pub struct HttpClient {
     inner: reqwest::Client,
     url: reqwest::Url,
 }
 
-impl HttpTransport {
-    fn new(url: reqwest::Url) -> Self {
+impl HttpClient {
+    pub fn new(url: reqwest::Url) -> Self {
         #[cfg(not(target_arch = "wasm32"))]
         let inner = reqwest::Client::builder()
             .timeout(Duration::from_secs(30))
@@ -51,7 +51,7 @@ impl HttpTransport {
 
 #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
-impl Client for HttpTransport {
+impl Client for HttpClient {
     async fn perform<R>(&self, request: R) -> Result<R::Output, rpc::Error>
     where
         R: SimpleRequest,
@@ -74,17 +74,17 @@ impl Client for HttpTransport {
 }
 
 #[derive(Clone, Debug)]
-pub struct HttpRpc {
-    transport: HttpTransport,
+pub struct ProdIo {
     peer_id: PeerId,
+    rpc_client: HttpClient,
 }
 
-impl HttpRpc {
-    pub async fn connect(url: reqwest::Url) -> Result<Self, rpc::Error> {
-        let transport = HttpTransport::new(url);
-        let peer_id = transport.status().await?.node_info.id;
-
-        Ok(Self { transport, peer_id })
+impl ProdIo {
+    pub fn new(peer_id: PeerId, rpc_client: HttpClient) -> Self {
+        Self {
+            peer_id,
+            rpc_client,
+        }
     }
 
     pub fn peer_id(&self) -> PeerId {
@@ -93,8 +93,8 @@ impl HttpRpc {
 
     pub async fn fetch_signed_header(&self, height: AtHeight) -> Result<SignedHeader, IoError> {
         let response = match height {
-            AtHeight::Highest => self.transport.latest_commit().await,
-            AtHeight::At(height) => self.transport.commit(height).await,
+            AtHeight::Highest => self.rpc_client.latest_commit().await,
+            AtHeight::At(height) => self.rpc_client.commit(height).await,
         }
         .map_err(IoError::from_rpc)?;
 
@@ -112,7 +112,7 @@ impl HttpRpc {
         };
 
         let response = self
-            .transport
+            .rpc_client
             .validators(height, rpc::Paging::All)
             .await
             .map_err(IoError::rpc)?;
@@ -127,7 +127,7 @@ impl HttpRpc {
     }
 
     pub async fn fetch_block(&self, height: Height) -> Result<cometbft::block::Block, IoError> {
-        self.transport
+        self.rpc_client
             .block(height)
             .await
             .map(|response| response.block)
@@ -137,7 +137,7 @@ impl HttpRpc {
 
 #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
-impl Io for HttpRpc {
+impl Io for ProdIo {
     async fn fetch_light_block(&self, height: AtHeight) -> Result<LightBlock, IoError> {
         let signed_header = self.fetch_signed_header(height).await?;
         let height = signed_header.header.height;
