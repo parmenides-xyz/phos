@@ -12,6 +12,8 @@
 <a href="https://crates.io/crates/phos-helios-verifiable-api-client"><img src="https://img.shields.io/crates/v/phos-helios-verifiable-api-client?label=phos-helios-verifiable-api-client" alt="crates.io phos-helios-verifiable-api-client"></a>
 <a href="https://crates.io/crates/phos-helios-verifiable-api-types"><img src="https://img.shields.io/crates/v/phos-helios-verifiable-api-types?label=phos-helios-verifiable-api-types" alt="crates.io phos-helios-verifiable-api-types"></a>
 
+> "Genēthētō phôs." — Genesis 1:3
+
 Light client for DATA Network (formerly Story Protocol) written in Rust, with native + browser + iOS support.
 
 Phos converts an untrusted, third-party RPC endpoint into a safe, unmanipulable RPC for users.
