@@ -1,8 +1,24 @@
+<div align="center">
+
 # phos
+
+<a href="https://crates.io/crates/phos-cli"><img src="https://img.shields.io/crates/v/phos-cli?label=phos-cli" alt="crates.io phos-cli"></a>
+<a href="https://crates.io/crates/phos-data-network"><img src="https://img.shields.io/crates/v/phos-data-network?label=phos-data-network" alt="crates.io phos-data-network"></a>
+<a href="https://crates.io/crates/phos-data-network-precompiles"><img src="https://img.shields.io/crates/v/phos-data-network-precompiles?label=phos-data-network-precompiles" alt="crates.io phos-data-network-precompiles"></a>
+<a href="https://crates.io/crates/phos-data-network-proto"><img src="https://img.shields.io/crates/v/phos-data-network-proto?label=phos-data-network-proto" alt="crates.io phos-data-network-proto"></a>
+<a href="https://crates.io/crates/phos-light-client"><img src="https://img.shields.io/crates/v/phos-light-client?label=phos-light-client" alt="crates.io phos-light-client"></a>
+<a href="https://crates.io/crates/phos-light-client-verifier"><img src="https://img.shields.io/crates/v/phos-light-client-verifier?label=phos-light-client-verifier" alt="crates.io phos-light-client-verifier"></a>
+<a href="https://crates.io/crates/phos-helios-common"><img src="https://img.shields.io/crates/v/phos-helios-common?label=phos-helios-common" alt="crates.io phos-helios-common"></a>
+<a href="https://crates.io/crates/phos-helios-core"><img src="https://img.shields.io/crates/v/phos-helios-core?label=phos-helios-core" alt="crates.io phos-helios-core"></a>
+<a href="https://crates.io/crates/phos-helios-revm-utils"><img src="https://img.shields.io/crates/v/phos-helios-revm-utils?label=phos-helios-revm-utils" alt="crates.io phos-helios-revm-utils"></a>
+<a href="https://crates.io/crates/phos-helios-verifiable-api-client"><img src="https://img.shields.io/crates/v/phos-helios-verifiable-api-client?label=phos-helios-verifiable-api-client" alt="crates.io phos-helios-verifiable-api-client"></a>
+<a href="https://crates.io/crates/phos-helios-verifiable-api-types"><img src="https://img.shields.io/crates/v/phos-helios-verifiable-api-types?label=phos-helios-verifiable-api-types" alt="crates.io phos-helios-verifiable-api-types"></a>
+
+</div>
 
 Light client for DATA Network (formerly Story Protocol) written in Rust, with native + browser + iOS support.
 
-Phos converts an untrusted, third-party RPC endpoint into a safe, unmanipulable RPC for users. Phos is **not a fork**--it extends upstream [Helios](https://github.com/a16z/helios), adding DATA-specific consensus (CometBFT) and a custom EVM.
+Phos converts an untrusted, third-party RPC endpoint into a safe, unmanipulable RPC for users.
 
 ## Installing the node
 
@@ -19,6 +35,7 @@ cargo install phos-cli --locked
 Install common dependencies.
 
 ```bash
+# install dependencies
 sudo apt-get install -y build-essential curl git jq pkg-config libssl-dev
 
 # install Rust (if necessary)
