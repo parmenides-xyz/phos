@@ -17,11 +17,11 @@ use url::Url;
 
 use helios_common::network_spec::NetworkSpec;
 use helios_core::client::HeliosClient;
-use helios_exex_data_network::{
+use phos_data_network::{
     config::{cli::CliConfig, Config, TrustOptions},
     DataNetworkClient, DataNetworkClientBuilder,
 };
-use helios_exex_light_client::types::{Hash, Height};
+use phos_light_client::types::{Hash, Height};
 
 mod tui;
 
@@ -136,7 +136,7 @@ struct DataNetworkArgs {
 
 impl DataNetworkArgs {
     fn make_client(&self) -> DataNetworkClient {
-        let config_path = home_dir().unwrap().join(".helios-exex/helios.toml");
+        let config_path = home_dir().unwrap().join(".phos/phos.toml");
         let cli_config = self.as_cli_config();
         let config = Config::from_file(&config_path, &self.network, &cli_config);
 

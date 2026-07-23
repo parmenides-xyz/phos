@@ -13,7 +13,7 @@ use alloy::{
     rpc::types::{state::StateOverride, Filter, TransactionRequest},
 };
 use helios_common::types::SubscriptionType;
-use helios_exex_data_network::DataNetworkClient;
+use phos_data_network::DataNetworkClient;
 use serde::de::DeserializeOwned;
 use tokio::sync::RwLock;
 use tokio_stream::wrappers::BroadcastStream;

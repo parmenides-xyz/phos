@@ -1,9 +1,9 @@
 [package]
-name = "helios-exex-node-uniffi"
+name = "phos-node-uniffi"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Mobile bindings for the Helios ExEx DATA Network light client"
+description = "Mobile bindings for the Phos DATA Network light client"
 
 [lib]
 crate-type = ["lib", "staticlib", "cdylib"]
@@ -15,8 +15,8 @@ path = "./src/bin/uniffi-bindgen.rs"
 [dependencies]
 alloy.workspace = true
 helios-common = { package = "phos-helios-common", version = "0.11.1", git = "https://github.com/parmenides-xyz/helios.git", rev = "6a60c45ba4d629582c752e4e4eb13977ac3e802d" }
-helios-exex-data-network = { workspace = true, default-features = false, features = ["tls-webpki-roots"] }
-helios-exex-light-client.workspace = true
+phos-data-network = { workspace = true, default-features = false, features = ["tls-webpki-roots"] }
+phos-light-client.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
@@ -29,5 +29,5 @@ url.workspace = true
 # webpki is needed for TLS on iOS
 # https://github.com/hyperium/tonic/issues/2369
 default = ["tls-webpki-roots"]
-tls-native-roots = ["helios-exex-data-network/tls-native-roots"]
-tls-webpki-roots = ["helios-exex-data-network/tls-webpki-roots"]
+tls-native-roots = ["phos-data-network/tls-native-roots"]
+tls-webpki-roots = ["phos-data-network/tls-webpki-roots"]

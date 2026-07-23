@@ -7,7 +7,7 @@ use cometbft_rpc::{
 };
 use reqwest::header;
 
-use helios_exex_light_client::{
+use phos_light_client::{
     components::io::{AtHeight, Io, IoError},
     verifier::types::{Height, LightBlock, PeerId, SignedHeader, ValidatorAddress, ValidatorSet},
 };

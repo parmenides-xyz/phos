@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 use helios_common::fork_schedule::ForkSchedule;
-use helios_exex_light_client::verifier::{options::Options, types::TrustThreshold};
+use phos_light_client::verifier::{options::Options, types::TrustThreshold};
 use serde::Serialize;
 use url::Url;
 

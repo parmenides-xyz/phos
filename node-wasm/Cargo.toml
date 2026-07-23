@@ -1,5 +1,5 @@
 [package]
-name = "helios-exex-node-wasm"
+name = "phos-node-wasm"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -13,8 +13,8 @@ console_error_panic_hook = "0.1.7"
 eyre = "0.6"
 futures-util = "0.3"
 helios-common = { package = "phos-helios-common", version = "0.11.1", git = "https://github.com/parmenides-xyz/helios.git", rev = "6a60c45ba4d629582c752e4e4eb13977ac3e802d" }
-helios-exex-data-network.workspace = true
-helios-exex-light-client.workspace = true
+phos-data-network.workspace = true
+phos-light-client.workspace = true
 serde = { version = "1.0", features = ["derive"] }
 serde-wasm-bindgen = "0.6.5"
 serde_json = "1.0"

@@ -27,7 +27,7 @@ pub mod store;
 
 pub(crate) mod utils;
 
-// Re-export `helios-exex-light-client-verifier` crate.
-pub use helios_exex_light_client_verifier as verifier;
+// Re-export `phos-light-client-verifier` crate.
+pub use phos_light_client_verifier as verifier;
 // Re-export for backward compatibility
 pub use verifier::{operations, predicates, types};

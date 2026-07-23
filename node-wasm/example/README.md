@@ -1,4 +1,4 @@
-# Helios ExEx TypeScript Example
+# Phos TypeScript Example
 
 This TypeScript example runs the DATA Network light client in a browser and displays the latest verified block.
 
@@ -43,4 +43,4 @@ The production files are written to `dist`.
 
 ## How It Works
 
-The example creates the Helios ExEx EIP-1193 provider, waits for CometBFT light-client synchronization, and supplies the provider to Viem through its custom transport.
+The example creates the Phos EIP-1193 provider, waits for CometBFT light-client synchronization, and supplies the provider to Viem through its custom transport.

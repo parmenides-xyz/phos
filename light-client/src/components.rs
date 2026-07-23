@@ -3,4 +3,4 @@ pub mod io;
 pub mod scheduler;
 
 // Re-export for backward compatibility
-pub use helios_exex_light_client_verifier as verifier;
+pub use phos_light_client_verifier as verifier;

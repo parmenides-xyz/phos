@@ -12,7 +12,7 @@ use strum::EnumIter;
 use url::Url;
 
 use helios_common::fork_schedule::ForkSchedule;
-use helios_exex_light_client::verifier::{options::Options, types::TrustThreshold};
+use phos_light_client::verifier::{options::Options, types::TrustThreshold};
 
 use crate::config::base::BaseConfig;
 use crate::config::types::ChainConfig;

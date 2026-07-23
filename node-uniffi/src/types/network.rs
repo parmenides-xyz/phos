@@ -1,4 +1,4 @@
-use helios_exex_data_network::config::networks::Network as DataNetwork;
+use phos_data_network::config::networks::Network as DataNetwork;
 
 /// DATA Network chain to connect to.
 #[derive(Debug, Clone, Copy, uniffi::Enum)]

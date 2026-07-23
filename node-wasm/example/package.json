@@ -1,7 +1,7 @@
 {
-  "name": "helios-exex-example",
+  "name": "phos-example",
   "version": "1.0.0",
-  "description": "TypeScript example for the Helios ExEx DATA Network light client",
+  "description": "TypeScript example for the Phos DATA Network light client",
   "type": "module",
   "scripts": {
     "dev": "vite",

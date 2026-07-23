@@ -1,5 +1,5 @@
 .DS_Store
 build
 **/xcuserdata
-helios_exex.xcframework
-DataNetworkDemo/helios_exex_node_uniffi.swift
+phos.xcframework
+DataNetworkDemo/phos_node_uniffi.swift

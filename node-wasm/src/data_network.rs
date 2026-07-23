@@ -14,11 +14,11 @@ use wasm_bindgen::prelude::*;
 use web_sys::js_sys::Function;
 
 use helios_common::types::SubscriptionType;
-use helios_exex_data_network::config::{networks, Config, TrustOptions};
-use helios_exex_data_network::database::{ConfigDB, Database};
-use helios_exex_data_network::spec::DataNetwork;
-use helios_exex_data_network::DataNetworkClientBuilder;
-use helios_exex_light_client::types::{Hash, Height};
+use phos_data_network::config::{networks, Config, TrustOptions};
+use phos_data_network::database::{ConfigDB, Database};
+use phos_data_network::spec::DataNetwork;
+use phos_data_network::DataNetworkClientBuilder;
+use phos_light_client::types::{Hash, Height};
 
 use crate::map_err;
 use crate::storage::LocalStorageDB;
@@ -38,7 +38,8 @@ impl Database for DatabaseType {
                 Ok(db) => Ok(DatabaseType::LocalStorage(db)),
                 Err(_) => {
                     web_sys::console::warn_1(
-                        &"Helios ExEx: localStorage unavailable, falling back to configured trust options".into(),
+                        &"Phos: localStorage unavailable, falling back to configured trust options"
+                            .into(),
                     );
                     Ok(DatabaseType::Memory(ConfigDB::new(config)?))
                 }
@@ -64,7 +65,7 @@ impl Database for DatabaseType {
 
 #[wasm_bindgen]
 pub struct DataNetworkClient {
-    inner: helios_exex_data_network::DataNetworkClient,
+    inner: phos_data_network::DataNetworkClient,
     chain_id: u64,
     active_subscriptions: HashMap<String, Subscription<DataNetwork>>,
 }

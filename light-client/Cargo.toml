@@ -11,12 +11,12 @@ default = ["rpc-client", "flex-error/std"]
 rpc-client = ["tokio", "rust-crypto"]
 rust-crypto = [
     "cometbft/rust-crypto",
-    "helios-exex-light-client-verifier/rust-crypto",
+    "phos-light-client-verifier/rust-crypto",
 ]
 secp256k1 = [
     "cometbft/secp256k1",
     "cometbft-rpc/secp256k1",
-    "helios-exex-light-client-verifier/secp256k1",
+    "phos-light-client-verifier/secp256k1",
 ]
 lightstore-sled = ["sled"]
 unstable = ["rust-crypto"]
@@ -26,7 +26,7 @@ mbt = ["rust-crypto"]
 async-trait = "0.1"
 cometbft = { version = "0.1.0-alpha.2", git = "https://github.com/cometbft/cometbft-rs.git", rev = "ac3db79c5807cd1d0b8b14a7b8199b8d79d6408d", default-features = false }
 cometbft-rpc = { version = "0.1.0-alpha.2", git = "https://github.com/cometbft/cometbft-rs.git", rev = "ac3db79c5807cd1d0b8b14a7b8199b8d79d6408d", default-features = false }
-helios-exex-light-client-verifier.workspace = true
+phos-light-client-verifier.workspace = true
 contracts = { version = "0.6.2", default-features = false }
 crossbeam-channel = { version = "0.5.11", default-features = false, features = ["std"] }
 derive_more = { version = "0.99.5", default-features = false, features = ["display"] }

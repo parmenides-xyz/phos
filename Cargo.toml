@@ -5,14 +5,14 @@ members = [
     "light-client",
     "light-client-verifier",
     "data-network",
-    "data-network-proto",
-    "data-network-precompiles",
+    "proto",
+    "precompiles",
     "node-wasm",
     "node-uniffi",
 ]
 
 [workspace.package]
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/parmenides-xyz/phos"
@@ -35,11 +35,11 @@ tokio = "1.49.0"
 tokio-stream = "0.1.18"
 uniffi = "0.29.2"
 url = "2.5"
-helios-exex-light-client = { package = "phos-light-client", version = "0.1.1" }
-helios-exex-light-client-verifier = { package = "phos-light-client-verifier", version = "0.1.1" }
-helios-exex-data-network = { package = "phos-data-network", version = "0.1.1", default-features = false }
-helios-exex-data-network-proto = { package = "phos-data-network-proto", version = "0.1.1" }
-helios-exex-data-network-precompiles = { package = "phos-data-network-precompiles", version = "0.1.1" }
+phos-light-client = { version = "0.1.1" }
+phos-light-client-verifier = { version = "0.1.1" }
+phos-data-network = { version = "0.1.2", default-features = false }
+phos-proto = { version = "0.1.2" }
+phos-precompiles = { version = "0.1.2" }
 prost = "0.13.3"
 prost-build = "0.13.3"
 prost-types = "0.13.3"
@@ -61,5 +61,5 @@ phos-helios-verifiable-api-types = { git = "https://github.com/parmenides-xyz/he
 phos-light-client = { path = "light-client" }
 phos-light-client-verifier = { path = "light-client-verifier" }
 phos-data-network = { path = "data-network" }
-phos-data-network-proto = { path = "data-network-proto" }
-phos-data-network-precompiles = { path = "data-network-precompiles" }
+phos-proto = { path = "proto" }
+phos-precompiles = { path = "precompiles" }

@@ -1,5 +1,5 @@
 [package]
-name = "phos-data-network-proto"
+name = "phos-proto"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

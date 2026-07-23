@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		FC92E19F2D5F9B1A00A25A9C /* helios_exex.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC92E19E2D5F9B1A00A25A9C /* helios_exex.xcframework */; };
+		FC92E19F2D5F9B1A00A25A9C /* phos.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC92E19E2D5F9B1A00A25A9C /* phos.xcframework */; };
 		FC92E1A22D5F9B2700A25A9C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC92E1A12D5F9B2700A25A9C /* SystemConfiguration.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		FC92E16B2D5F9A6D00A25A9C /* DataNetworkDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DataNetworkDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		FC92E19E2D5F9B1A00A25A9C /* helios_exex.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = helios_exex.xcframework; sourceTree = "<group>"; };
+		FC92E19E2D5F9B1A00A25A9C /* phos.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = phos.xcframework; sourceTree = "<group>"; };
 		FC92E1A12D5F9B2700A25A9C /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -44,7 +44,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FC92E1A22D5F9B2700A25A9C /* SystemConfiguration.framework in Frameworks */,
-				FC92E19F2D5F9B1A00A25A9C /* helios_exex.xcframework in Frameworks */,
+				FC92E19F2D5F9B1A00A25A9C /* phos.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -56,7 +56,7 @@
 			children = (
 				FC92E16D2D5F9A6D00A25A9C /* DataNetworkDemo */,
 				FC92E16C2D5F9A6D00A25A9C /* Products */,
-				FC92E19E2D5F9B1A00A25A9C /* helios_exex.xcframework */,
+				FC92E19E2D5F9B1A00A25A9C /* phos.xcframework */,
 				FC92E1A02D5F9B2700A25A9C /* Frameworks */,
 			);
 			sourceTree = "<group>";

@@ -5,11 +5,11 @@ use alloy::hex;
 use eyre::Result;
 use wasm_bindgen::prelude::*;
 
-use helios_exex_data_network::{
+use phos_data_network::{
     config::{Config, TrustOptions},
     database::Database,
 };
-use helios_exex_light_client::types::{Hash, Height};
+use phos_light_client::types::{Hash, Height};
 
 #[derive(Clone)]
 pub struct LocalStorageDB {
@@ -23,7 +23,7 @@ impl Database for LocalStorageDB {
         let window = web_sys::window().ok_or_else(|| eyre::eyre!("window not available"))?;
         if let Ok(Some(_local_storage)) = window.local_storage() {
             return Ok(Self {
-                key: format!("helios-exex-{}-trust-options", config.chain.chain_id),
+                key: format!("phos-{}-trust-options", config.chain.chain_id),
                 default_trust_options: config.trust_options.clone(),
             });
         }

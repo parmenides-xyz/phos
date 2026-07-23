@@ -1,10 +1,10 @@
 use std::path::Path;
 use std::str::FromStr;
 
-use helios_exex_data_network::config::{Config, TrustOptions};
-use helios_exex_data_network::database::{ConfigDB, FileDB};
-use helios_exex_data_network::{DataNetworkClient, DataNetworkClientBuilder};
-use helios_exex_light_client::types::{Hash, Height};
+use phos_data_network::config::{Config, TrustOptions};
+use phos_data_network::database::{ConfigDB, FileDB};
+use phos_data_network::{DataNetworkClient, DataNetworkClientBuilder};
+use phos_light_client::types::{Hash, Height};
 use uniffi::Record;
 use url::Url;
 
@@ -34,7 +34,7 @@ pub struct NodeConfig {
 impl NodeConfig {
     /// Convert into a DATA Network client for the implementation.
     pub(crate) async fn into_client(self) -> Result<DataNetworkClient> {
-        let network = helios_exex_data_network::config::networks::Network::from(self.network);
+        let network = phos_data_network::config::networks::Network::from(self.network);
         let base = network.to_base_config();
 
         let consensus_rpc = match self.consensus_rpc {

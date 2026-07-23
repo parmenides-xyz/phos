@@ -1,5 +1,5 @@
 use helios_common::types::SubscriptionEvent;
-use helios_exex_data_network::spec::DataNetwork;
+use phos_data_network::spec::DataNetwork;
 use tokio::sync::Mutex;
 use tokio_stream::wrappers::{errors::BroadcastStreamRecvError, BroadcastStream};
 use tokio_stream::StreamExt;

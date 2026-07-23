@@ -21,8 +21,8 @@ use helios_common::{
     types::{Account, EvmError},
 };
 use helios_core::execution::errors::ExecutionError;
-use helios_exex_data_network_precompiles::DataNetworkPrecompiles;
 use helios_revm_utils::proof_db::ProofDB;
+use phos_precompiles::DataNetworkPrecompiles;
 
 use crate::spec::DataNetwork;
 

@@ -7,7 +7,7 @@ import {
   type PublicClient,
 } from "viem";
 
-// Import Helios ExEx from the parent directory's built output.
+// Import Phos from the parent directory's built output.
 // @ts-ignore - importing local build
 import * as heliosExEx from "../../dist/lib.js";
 

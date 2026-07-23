@@ -9,7 +9,7 @@ use std::{
 use cometbft::hash::Algorithm;
 use eyre::Result;
 #[cfg(not(target_arch = "wasm32"))]
-use helios_exex_light_client::types::{Hash, Height};
+use phos_light_client::types::{Hash, Height};
 
 use crate::config::{Config, TrustOptions};
 

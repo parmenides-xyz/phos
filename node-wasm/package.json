@@ -1,7 +1,7 @@
 {
-  "name": "helios-exex-node-wasm",
+  "name": "phos-node-wasm",
   "description": "Browser bindings and EIP-1193 provider for the DATA Network light client",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "type": "module",
   "main": "./dist/lib.umd.cjs",
   "module": "./dist/lib.js",

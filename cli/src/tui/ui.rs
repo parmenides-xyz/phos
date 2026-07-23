@@ -55,7 +55,7 @@ fn draw_header<N: NetworkSpec>(f: &mut Frame, app: &App<N>, area: Rect) {
     };
 
     let header_text = vec![Line::from(vec![
-        Span::raw("Helios ExEx - "),
+        Span::raw("Phos - "),
         Span::styled(&app.chain_name, Style::default().fg(Color::Cyan)),
         Span::raw("  |  Status: "),
         Span::styled(format!("{status_text} {status_symbol}"), status_style),

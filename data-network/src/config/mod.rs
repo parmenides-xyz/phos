@@ -11,7 +11,7 @@ use serde::Deserialize;
 use url::Url;
 
 use helios_common::fork_schedule::ForkSchedule;
-use helios_exex_light_client::verifier::{options::Options, types::TrustThreshold};
+use phos_light_client::verifier::{options::Options, types::TrustThreshold};
 
 use self::base::BaseConfig;
 use self::cli::CliConfig;

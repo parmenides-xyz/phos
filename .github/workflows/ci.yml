@@ -75,7 +75,7 @@ jobs:
         with:
           tool: wasm-pack@0.15.0
       - name: Check WASM crate
-        run: cargo check --locked --target wasm32-unknown-unknown --package helios-exex-node-wasm
+        run: cargo check --locked --target wasm32-unknown-unknown --package phos-node-wasm
       - name: Install package dependencies
         run: npm ci
         working-directory: node-wasm

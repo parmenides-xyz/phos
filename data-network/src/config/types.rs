@@ -1,4 +1,4 @@
-use helios_exex_light_client::types::{Hash, Height};
+use phos_light_client::types::{Hash, Height};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]

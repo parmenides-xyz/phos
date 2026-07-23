@@ -20,9 +20,9 @@ eyre = "0.6"
 figment = { version = "0.10.7", features = ["toml", "env"] }
 helios-common = { package = "phos-helios-common", version = "0.11.1", git = "https://github.com/parmenides-xyz/helios.git", rev = "6a60c45ba4d629582c752e4e4eb13977ac3e802d" }
 helios-core = { package = "phos-helios-core", version = "0.11.1", git = "https://github.com/parmenides-xyz/helios.git", rev = "6a60c45ba4d629582c752e4e4eb13977ac3e802d" }
-helios-exex-data-network-proto.workspace = true
-helios-exex-data-network-precompiles.workspace = true
-helios-exex-light-client = { workspace = true, features = ["secp256k1"] }
+phos-proto.workspace = true
+phos-precompiles.workspace = true
+phos-light-client = { workspace = true, features = ["secp256k1"] }
 helios-revm-utils = { package = "phos-helios-revm-utils", version = "0.11.1", git = "https://github.com/parmenides-xyz/helios.git", rev = "6a60c45ba4d629582c752e4e4eb13977ac3e802d" }
 prost.workspace = true
 reqwest = { version = "0.11.20", default-features = false }

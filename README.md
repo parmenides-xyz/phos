@@ -2,8 +2,8 @@
 
 <a href="https://crates.io/crates/phos-cli"><img src="https://img.shields.io/crates/v/phos-cli?label=phos-cli" alt="crates.io phos-cli"></a>
 <a href="https://crates.io/crates/phos-data-network"><img src="https://img.shields.io/crates/v/phos-data-network?label=phos-data-network" alt="crates.io phos-data-network"></a>
-<a href="https://crates.io/crates/phos-data-network-precompiles"><img src="https://img.shields.io/crates/v/phos-data-network-precompiles?label=phos-data-network-precompiles" alt="crates.io phos-data-network-precompiles"></a>
-<a href="https://crates.io/crates/phos-data-network-proto"><img src="https://img.shields.io/crates/v/phos-data-network-proto?label=phos-data-network-proto" alt="crates.io phos-data-network-proto"></a>
+<a href="https://crates.io/crates/phos-precompiles"><img src="https://img.shields.io/crates/v/phos-precompiles?label=phos-precompiles" alt="crates.io phos-precompiles"></a>
+<a href="https://crates.io/crates/phos-proto"><img src="https://img.shields.io/crates/v/phos-proto?label=phos-proto" alt="crates.io phos-proto"></a>
 <a href="https://crates.io/crates/phos-light-client"><img src="https://img.shields.io/crates/v/phos-light-client?label=phos-light-client" alt="crates.io phos-light-client"></a>
 <a href="https://crates.io/crates/phos-light-client-verifier"><img src="https://img.shields.io/crates/v/phos-light-client-verifier?label=phos-light-client-verifier" alt="crates.io phos-light-client-verifier"></a>
 <a href="https://crates.io/crates/phos-helios-common"><img src="https://img.shields.io/crates/v/phos-helios-common?label=phos-helios-common" alt="crates.io phos-helios-common"></a>
@@ -12,7 +12,7 @@
 <a href="https://crates.io/crates/phos-helios-verifiable-api-client"><img src="https://img.shields.io/crates/v/phos-helios-verifiable-api-client?label=phos-helios-verifiable-api-client" alt="crates.io phos-helios-verifiable-api-client"></a>
 <a href="https://crates.io/crates/phos-helios-verifiable-api-types"><img src="https://img.shields.io/crates/v/phos-helios-verifiable-api-types?label=phos-helios-verifiable-api-types" alt="crates.io phos-helios-verifiable-api-types"></a>
 
-> "Genēthētō phôs." — Genesis 1:3
+> "*Genēthētō phôs.* Let there be light." — Genesis 1:3
 
 Light client for DATA Network (formerly Story Protocol) written in Rust, with native + browser + iOS support.
 

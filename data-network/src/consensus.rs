@@ -29,11 +29,7 @@ use tracing::{error, info, warn};
 
 use helios_common::fork_schedule::ForkSchedule;
 use helios_core::{consensus::Consensus, time::interval};
-use helios_exex_data_network_proto::{
-    cosmos::tx::v1beta1::{TxBody, TxRaw},
-    story::evmengine::v1::types::{ExecutionPayloadDeneb, MsgExecutionPayload},
-};
-use helios_exex_light_client::{
+use phos_light_client::{
     builder::LightClientBuilder,
     components::{clock::SystemClock, io::IoError, scheduler::basic_bisecting_schedule},
     errors::Error as LightClientError,
@@ -44,6 +40,10 @@ use helios_exex_light_client::{
         types::{Height, LightBlock},
         ProdVerifier,
     },
+};
+use phos_proto::{
+    cosmos::tx::v1beta1::{TxBody, TxRaw},
+    story::evmengine::v1::types::{ExecutionPayloadDeneb, MsgExecutionPayload},
 };
 
 use crate::{
@@ -223,7 +223,7 @@ impl<DB: Database> Inner<DB> {
     async fn new(
         consensus_rpc: reqwest::Url,
         trust_options: TrustOptions,
-        verifier_options: helios_exex_light_client::verifier::options::Options,
+        verifier_options: phos_light_client::verifier::options::Options,
         execution_forks: ForkSchedule,
         block_send: Sender<Block<Transaction>>,
         finalized_block_send: watch::Sender<Option<Block<Transaction>>>,
