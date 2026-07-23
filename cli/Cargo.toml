@@ -1,11 +1,13 @@
 [package]
-name = "helios-exex-cli"
+name = "phos-cli"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+description = "Native command-line interface for the Phos DATA Network light client"
 
 [[bin]]
-name = "helios-exex"
+name = "phos"
 path = "src/main.rs"
 
 [dependencies]
@@ -26,7 +28,7 @@ ratatui = "0.26.1"
 crossterm = "0.27.0"
 chrono = "0.4"
 
-helios-common = { git = "https://github.com/parmenides-xyz/helios.git", rev = "098ad96e3b91191d81946f075210168a6f924d28" }
-helios-core = { git = "https://github.com/parmenides-xyz/helios.git", rev = "098ad96e3b91191d81946f075210168a6f924d28" }
+helios-common = { package = "phos-helios-common", version = "0.11.1", git = "https://github.com/parmenides-xyz/helios.git", rev = "6a60c45ba4d629582c752e4e4eb13977ac3e802d" }
+helios-core = { package = "phos-helios-core", version = "0.11.1", git = "https://github.com/parmenides-xyz/helios.git", rev = "6a60c45ba4d629582c752e4e4eb13977ac3e802d" }
 helios-exex-data-network = { workspace = true, features = ["tls-native-roots"] }
 helios-exex-light-client.workspace = true

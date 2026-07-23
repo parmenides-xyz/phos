@@ -3064,170 +3064,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 
 [[package]]
-name = "helios-common"
-version = "0.11.1"
-source = "git+https://github.com/parmenides-xyz/helios.git?rev=098ad96e3b91191d81946f075210168a6f924d28#098ad96e3b91191d81946f075210168a6f924d28"
-dependencies = [
- "alloy",
- "async-trait",
- "eyre",
- "hex",
- "revm",
- "serde",
- "serde_json",
- "thiserror 1.0.69",
- "tokio",
-]
-
-[[package]]
-name = "helios-core"
-version = "0.11.1"
-source = "git+https://github.com/parmenides-xyz/helios.git?rev=098ad96e3b91191d81946f075210168a6f924d28#098ad96e3b91191d81946f075210168a6f924d28"
-dependencies = [
- "alloy",
- "alloy-trie",
- "async-trait",
- "eyre",
- "futures",
- "getrandom 0.3.4",
- "helios-common",
- "helios-verifiable-api-client",
- "hex",
- "jsonrpsee",
- "openssl",
- "parking_lot 0.12.5",
- "reqwest 0.12.28",
- "revm",
- "schnellru",
- "serde",
- "serde_json",
- "thiserror 1.0.69",
- "tokio",
- "tracing",
- "url",
- "wasm-bindgen-futures",
- "wasmtimer",
-]
-
-[[package]]
-name = "helios-exex-cli"
-version = "0.1.0"
-dependencies = [
- "alloy",
- "chrono",
- "clap",
- "crossterm",
- "ctrlc",
- "dirs",
- "eyre",
- "futures",
- "helios-common",
- "helios-core",
- "helios-exex-data-network",
- "helios-exex-light-client",
- "ratatui",
- "tokio",
- "tracing",
- "tracing-subscriber 0.3.23",
- "url",
-]
-
-[[package]]
-name = "helios-exex-data-network"
-version = "0.1.0"
-dependencies = [
- "alloy",
- "async-trait",
- "cometbft",
- "cometbft-rpc",
- "dirs",
- "eyre",
- "figment",
- "helios-common",
- "helios-core",
- "helios-exex-data-network-precompiles",
- "helios-exex-data-network-proto",
- "helios-exex-light-client",
- "helios-revm-utils",
- "prost",
- "reqwest 0.11.27",
- "revm",
- "serde",
- "serde_json",
- "strum 0.26.3",
- "tokio",
- "tracing",
- "url",
- "wasm-bindgen-futures",
-]
-
-[[package]]
-name = "helios-exex-data-network-precompiles"
-version = "0.1.0"
-dependencies = [
- "alloy-primitives",
- "alloy-sol-types",
- "getrandom 0.4.3",
- "num-bigint",
- "revm",
- "scoped-tls",
- "thiserror 1.0.69",
-]
-
-[[package]]
-name = "helios-exex-data-network-proto"
-version = "0.1.0"
-dependencies = [
- "prost",
- "prost-build",
- "prost-types",
- "protox",
-]
-
-[[package]]
-name = "helios-exex-light-client"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "cometbft",
- "cometbft-rpc",
- "contracts",
- "crossbeam-channel",
- "derive_more 0.99.20",
- "flex-error",
- "futures",
- "helios-exex-light-client-verifier",
- "regex",
- "serde",
- "serde_cbor",
- "serde_derive",
- "serde_json",
- "sled",
- "static_assertions",
- "time",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "helios-exex-light-client-verifier"
-version = "0.1.0"
-dependencies = [
- "cometbft",
- "derive_more 0.99.20",
- "flex-error",
- "serde",
- "time",
-]
-
-[[package]]
 name = "helios-exex-node-uniffi"
 version = "0.1.0"
 dependencies = [
  "alloy",
- "helios-common",
- "helios-exex-data-network",
- "helios-exex-light-client",
+ "phos-data-network",
+ "phos-helios-common",
+ "phos-light-client",
  "serde",
  "serde_json",
  "thiserror 2.0.19",
@@ -3245,9 +3088,9 @@ dependencies = [
  "console_error_panic_hook",
  "eyre",
  "futures-util",
- "helios-common",
- "helios-exex-data-network",
- "helios-exex-light-client",
+ "phos-data-network",
+ "phos-helios-common",
+ "phos-light-client",
  "serde",
  "serde-wasm-bindgen",
  "serde_json",
@@ -3255,51 +3098,6 @@ dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
-]
-
-[[package]]
-name = "helios-revm-utils"
-version = "0.11.1"
-source = "git+https://github.com/parmenides-xyz/helios.git?rev=098ad96e3b91191d81946f075210168a6f924d28#098ad96e3b91191d81946f075210168a6f924d28"
-dependencies = [
- "alloy",
- "eyre",
- "helios-common",
- "helios-core",
- "hex",
- "revm",
- "thiserror 1.0.69",
- "tracing",
-]
-
-[[package]]
-name = "helios-verifiable-api-client"
-version = "0.11.1"
-source = "git+https://github.com/parmenides-xyz/helios.git?rev=098ad96e3b91191d81946f075210168a6f924d28#098ad96e3b91191d81946f075210168a6f924d28"
-dependencies = [
- "alloy",
- "async-trait",
- "eyre",
- "helios-common",
- "helios-verifiable-api-types",
- "reqwest 0.12.28",
- "reqwest-middleware",
- "reqwest-retry",
- "serde",
- "serde_json",
- "tokio",
- "url",
-]
-
-[[package]]
-name = "helios-verifiable-api-types"
-version = "0.11.1"
-source = "git+https://github.com/parmenides-xyz/helios.git?rev=098ad96e3b91191d81946f075210168a6f924d28#098ad96e3b91191d81946f075210168a6f924d28"
-dependencies = [
- "alloy",
- "helios-common",
- "serde",
- "serde_json",
 ]
 
 [[package]]
@@ -4780,6 +4578,208 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c6fd9027e2d9319be6349febd1db4e8d02aa544921200c9b777720ac34a3aa89"
 dependencies = [
  "siphasher 1.0.3",
+]
+
+[[package]]
+name = "phos-cli"
+version = "0.1.0"
+dependencies = [
+ "alloy",
+ "chrono",
+ "clap",
+ "crossterm",
+ "ctrlc",
+ "dirs",
+ "eyre",
+ "futures",
+ "phos-data-network",
+ "phos-helios-common",
+ "phos-helios-core",
+ "phos-light-client",
+ "ratatui",
+ "tokio",
+ "tracing",
+ "tracing-subscriber 0.3.23",
+ "url",
+]
+
+[[package]]
+name = "phos-data-network"
+version = "0.1.0"
+dependencies = [
+ "alloy",
+ "async-trait",
+ "cometbft",
+ "cometbft-rpc",
+ "dirs",
+ "eyre",
+ "figment",
+ "phos-data-network-precompiles",
+ "phos-data-network-proto",
+ "phos-helios-common",
+ "phos-helios-core",
+ "phos-helios-revm-utils",
+ "phos-light-client",
+ "prost",
+ "reqwest 0.11.27",
+ "revm",
+ "serde",
+ "serde_json",
+ "strum 0.26.3",
+ "tokio",
+ "tracing",
+ "url",
+ "wasm-bindgen-futures",
+]
+
+[[package]]
+name = "phos-data-network-precompiles"
+version = "0.1.0"
+dependencies = [
+ "alloy-primitives",
+ "alloy-sol-types",
+ "getrandom 0.4.3",
+ "num-bigint",
+ "revm",
+ "scoped-tls",
+ "thiserror 1.0.69",
+]
+
+[[package]]
+name = "phos-data-network-proto"
+version = "0.1.0"
+dependencies = [
+ "prost",
+ "prost-build",
+ "prost-types",
+ "protox",
+]
+
+[[package]]
+name = "phos-helios-common"
+version = "0.11.1"
+source = "git+https://github.com/parmenides-xyz/helios.git?rev=6a60c45ba4d629582c752e4e4eb13977ac3e802d#6a60c45ba4d629582c752e4e4eb13977ac3e802d"
+dependencies = [
+ "alloy",
+ "async-trait",
+ "eyre",
+ "hex",
+ "revm",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+]
+
+[[package]]
+name = "phos-helios-core"
+version = "0.11.1"
+source = "git+https://github.com/parmenides-xyz/helios.git?rev=6a60c45ba4d629582c752e4e4eb13977ac3e802d#6a60c45ba4d629582c752e4e4eb13977ac3e802d"
+dependencies = [
+ "alloy",
+ "alloy-trie",
+ "async-trait",
+ "eyre",
+ "futures",
+ "getrandom 0.3.4",
+ "hex",
+ "jsonrpsee",
+ "openssl",
+ "parking_lot 0.12.5",
+ "phos-helios-common",
+ "phos-helios-verifiable-api-client",
+ "reqwest 0.12.28",
+ "revm",
+ "schnellru",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+ "tracing",
+ "url",
+ "wasm-bindgen-futures",
+ "wasmtimer",
+]
+
+[[package]]
+name = "phos-helios-revm-utils"
+version = "0.11.1"
+source = "git+https://github.com/parmenides-xyz/helios.git?rev=6a60c45ba4d629582c752e4e4eb13977ac3e802d#6a60c45ba4d629582c752e4e4eb13977ac3e802d"
+dependencies = [
+ "alloy",
+ "eyre",
+ "hex",
+ "phos-helios-common",
+ "phos-helios-core",
+ "revm",
+ "thiserror 1.0.69",
+ "tracing",
+]
+
+[[package]]
+name = "phos-helios-verifiable-api-client"
+version = "0.11.1"
+source = "git+https://github.com/parmenides-xyz/helios.git?rev=6a60c45ba4d629582c752e4e4eb13977ac3e802d#6a60c45ba4d629582c752e4e4eb13977ac3e802d"
+dependencies = [
+ "alloy",
+ "async-trait",
+ "eyre",
+ "phos-helios-common",
+ "phos-helios-verifiable-api-types",
+ "reqwest 0.12.28",
+ "reqwest-middleware",
+ "reqwest-retry",
+ "serde",
+ "serde_json",
+ "tokio",
+ "url",
+]
+
+[[package]]
+name = "phos-helios-verifiable-api-types"
+version = "0.11.1"
+source = "git+https://github.com/parmenides-xyz/helios.git?rev=6a60c45ba4d629582c752e4e4eb13977ac3e802d#6a60c45ba4d629582c752e4e4eb13977ac3e802d"
+dependencies = [
+ "alloy",
+ "phos-helios-common",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "phos-light-client"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "cometbft",
+ "cometbft-rpc",
+ "contracts",
+ "crossbeam-channel",
+ "derive_more 0.99.20",
+ "flex-error",
+ "futures",
+ "phos-light-client-verifier",
+ "regex",
+ "serde",
+ "serde_cbor",
+ "serde_derive",
+ "serde_json",
+ "sled",
+ "static_assertions",
+ "time",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "phos-light-client-verifier"
+version = "0.1.0"
+dependencies = [
+ "cometbft",
+ "derive_more 0.99.20",
+ "flex-error",
+ "serde",
+ "time",
 ]
 
 [[package]]

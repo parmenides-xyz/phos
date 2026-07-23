@@ -34,7 +34,7 @@ async fn main() -> Result<()> {
     }
 
     match cli.command {
-        Command::DataNetwork(data_network) => {
+        Command::Node(data_network) => {
             let client = data_network.make_client();
             if cli.tui {
                 if let Err(e) = tui::run(client).await {
@@ -97,7 +97,7 @@ fn register_shutdown_handler<N: NetworkSpec>(client: HeliosClient<N>) {
 
 #[derive(Parser)]
 #[command(version, about)]
-/// Helios ExEx is a fast, secure, and portable DATA Network light client.
+/// Phos is a fast, secure, and portable DATA Network light client.
 struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -108,8 +108,8 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
-    #[command(name = "data-network")]
-    DataNetwork(DataNetworkArgs),
+    #[command(name = "node")]
+    Node(DataNetworkArgs),
 }
 
 #[derive(Args)]

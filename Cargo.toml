@@ -15,6 +15,7 @@ members = [
 version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
+repository = "https://github.com/parmenides-xyz/phos"
 
 [workspace.dependencies]
 alloy = { version = "=1.0.37", features = [
@@ -34,11 +35,11 @@ tokio = "1.49.0"
 tokio-stream = "0.1.18"
 uniffi = "0.29.2"
 url = "2.5"
-helios-exex-light-client = { path = "light-client" }
-helios-exex-light-client-verifier = { path = "light-client-verifier" }
-helios-exex-data-network = { path = "data-network", default-features = false }
-helios-exex-data-network-proto = { path = "data-network-proto" }
-helios-exex-data-network-precompiles = { path = "data-network-precompiles" }
+helios-exex-light-client = { package = "phos-light-client", version = "0.1.0" }
+helios-exex-light-client-verifier = { package = "phos-light-client-verifier", version = "0.1.0" }
+helios-exex-data-network = { package = "phos-data-network", version = "0.1.0", default-features = false }
+helios-exex-data-network-proto = { package = "phos-data-network-proto", version = "0.1.0" }
+helios-exex-data-network-precompiles = { package = "phos-data-network-precompiles", version = "0.1.0" }
 prost = "0.13.3"
 prost-build = "0.13.3"
 prost-types = "0.13.3"
@@ -50,3 +51,15 @@ revm = { version = "=34.0.0", default-features = false, features = [
     "optional_eip3607",
     "optional_no_base_fee",
 ] }
+
+[patch.crates-io]
+phos-helios-common = { git = "https://github.com/parmenides-xyz/helios.git", rev = "6a60c45ba4d629582c752e4e4eb13977ac3e802d" }
+phos-helios-core = { git = "https://github.com/parmenides-xyz/helios.git", rev = "6a60c45ba4d629582c752e4e4eb13977ac3e802d" }
+phos-helios-revm-utils = { git = "https://github.com/parmenides-xyz/helios.git", rev = "6a60c45ba4d629582c752e4e4eb13977ac3e802d" }
+phos-helios-verifiable-api-client = { git = "https://github.com/parmenides-xyz/helios.git", rev = "6a60c45ba4d629582c752e4e4eb13977ac3e802d" }
+phos-helios-verifiable-api-types = { git = "https://github.com/parmenides-xyz/helios.git", rev = "6a60c45ba4d629582c752e4e4eb13977ac3e802d" }
+phos-light-client = { path = "light-client" }
+phos-light-client-verifier = { path = "light-client-verifier" }
+phos-data-network = { path = "data-network" }
+phos-data-network-proto = { path = "data-network-proto" }
+phos-data-network-precompiles = { path = "data-network-precompiles" }

@@ -14,7 +14,7 @@ path = "./src/bin/uniffi-bindgen.rs"
 
 [dependencies]
 alloy.workspace = true
-helios-common = { git = "https://github.com/parmenides-xyz/helios.git", rev = "098ad96e3b91191d81946f075210168a6f924d28" }
+helios-common = { package = "phos-helios-common", version = "0.11.1", git = "https://github.com/parmenides-xyz/helios.git", rev = "6a60c45ba4d629582c752e4e4eb13977ac3e802d" }
 helios-exex-data-network = { workspace = true, default-features = false, features = ["tls-webpki-roots"] }
 helios-exex-light-client.workspace = true
 serde.workspace = true

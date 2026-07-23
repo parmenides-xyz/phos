@@ -80,6 +80,7 @@ impl Config {
             rpc_bind_ip: self.rpc_bind_ip.unwrap_or(IpAddr::V4(Ipv4Addr::LOCALHOST)),
             rpc_port: self.rpc_port.unwrap_or(8545),
             consensus_rpc: Some(self.consensus_rpc.clone()),
+            execution_rpc: self.execution_rpc.clone(),
             chain: self.chain.clone(),
             verifier_options: self.verifier_options,
             execution_forks: self.execution_forks,
@@ -96,7 +97,7 @@ impl From<BaseConfig> for Config {
             consensus_rpc: base
                 .consensus_rpc
                 .unwrap_or_else(|| Url::parse("http://localhost:26657").unwrap()),
-            execution_rpc: None,
+            execution_rpc: base.execution_rpc,
             verifiable_api: None,
             trust_options: None,
             data_dir: base.data_dir,

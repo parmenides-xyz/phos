@@ -16,6 +16,7 @@ pub struct BaseConfig {
     pub rpc_bind_ip: IpAddr,
     pub rpc_port: u16,
     pub consensus_rpc: Option<Url>,
+    pub execution_rpc: Option<Url>,
     pub chain: ChainConfig,
     pub verifier_options: Options,
     pub execution_forks: ForkSchedule,
@@ -28,6 +29,7 @@ impl Default for BaseConfig {
             rpc_bind_ip: IpAddr::V4(Ipv4Addr::LOCALHOST),
             rpc_port: 0,
             consensus_rpc: None,
+            execution_rpc: None,
             chain: ChainConfig::default(),
             verifier_options: Options {
                 trust_threshold: TrustThreshold::ONE_THIRD,

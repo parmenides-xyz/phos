@@ -135,11 +135,14 @@ impl<DB: Database> DataNetworkClientBuilder<DB> {
             .or_else(|| base_config.consensus_rpc.clone())
             .ok_or_else(|| eyre!("missing consensus rpc"))?;
 
-        let execution_rpc = self.execution_rpc.or_else(|| {
-            self.config
-                .as_ref()
-                .and_then(|config| config.execution_rpc.clone())
-        });
+        let execution_rpc = self
+            .execution_rpc
+            .or_else(|| {
+                self.config
+                    .as_ref()
+                    .and_then(|config| config.execution_rpc.clone())
+            })
+            .or_else(|| base_config.execution_rpc.clone());
 
         let verifiable_api = self.verifiable_api.or_else(|| {
             self.config

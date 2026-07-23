@@ -69,6 +69,7 @@ pub fn mainnet() -> BaseConfig {
     BaseConfig {
         rpc_port: 8545,
         consensus_rpc: Some(Url::parse("https://story-consensus-rpc.publicnode.com").unwrap()),
+        execution_rpc: Some(Url::parse("https://story-rpc.publicnode.com").unwrap()),
         chain: ChainConfig { chain_id: 1514 },
         verifier_options: Options {
             trust_threshold: TrustThreshold::ONE_THIRD,

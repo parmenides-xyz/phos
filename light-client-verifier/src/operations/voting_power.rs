@@ -280,10 +280,7 @@ impl NonAbsentCommitVotes {
             let vote = &mut self.votes[idx];
 
             if !vote.verified {
-                self.sign_bytes.clear();
-                vote.signed_vote
-                    .sign_bytes_into(&mut self.sign_bytes)
-                    .expect("buffer is resized if needed and encoding never fails");
+                self.sign_bytes = vote.signed_vote.sign_bytes();
 
                 let sign_bytes = self.sign_bytes.as_slice();
                 validator

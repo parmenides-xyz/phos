@@ -1,8 +1,10 @@
 [package]
-name = "helios-exex-data-network-precompiles"
+name = "phos-data-network-precompiles"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+description = "DATA Network EVM precompiles for Phos"
 
 [dependencies]
 alloy-primitives.workspace = true
